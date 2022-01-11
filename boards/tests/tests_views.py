@@ -5,8 +5,8 @@ from django.urls import reverse
 from django.urls.base import resolve
 
 from boards.models import Board, Post, Topic
-from .views import board_topics, home, new_topic
-from .forms import NewTopicForm
+from ..views import board_topics, home, new_topic
+from ..forms import NewTopicForm
 
 # Create your tests here.
 class HomeTests(TestCase):
