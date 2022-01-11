@@ -4,8 +4,8 @@ from django.contrib.auth.models import User
 
 # Create your tests here.
 from django.urls import reverse,resolve
-from .views import signup
-from .forms import SignUpForm
+from ..views import signup
+from ..forms import SignUpForm
 
 class SignUpTests(TestCase):
     def setUp(self):
