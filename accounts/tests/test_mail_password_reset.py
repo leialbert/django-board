@@ -4,17 +4,22 @@ from django.urls import reverse
 from django.test import TestCase
 
 class PasswordResetMailTests(TestCase):
-    def setUp(self) -> None:
+    def setUp(self):
         User.objects.create_user(
-            username = 'Albert',
+            username = 'albert',
             email = 'albert@hotmail.com',
-            password='123cdf'
+            password='123cdeff'
         )
-        self.response = self.client.post(reverse('password_reset'),{'email':'albert@hotmail.com'})
+        url = reverse('password_reset')
+        data = {
+            'email': 'albert@hotmail.com'
+        }
+        self.response = self.client.post(url,data)
         self.email = mail.outbox[0]
 
+
     def test_email_subject(self):
-        self.assertEqual('[Django Boards] Please reset your password', self.email.subject)
+        self.assertEqual('[Django Board] Please reset your password', self.email.subject)
 
     def test_email_body(self):
         context = self.response.context
@@ -30,4 +35,4 @@ class PasswordResetMailTests(TestCase):
         self.assertIn('albert@hotmail.com',self.email.body)
 
     def test_mail_to(self):
-        self.assertEqual(['john@doe.com'],self.email.to)
+        self.assertEqual(['albert@hotmail.com'],self.email.to)

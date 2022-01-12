@@ -10,32 +10,34 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
 class PasswordResetTests(TestCase):
-    def setUp(self) -> None:
+    def setUp(self):
         url = reverse('password_reset')
-        self.responese = self.client.get(url)
+        self.response = self.client.get(url)
     
     def test_status_code(self):
-        self.assertEquals(self.responese.status_code,200)
+        self.assertEquals(self.response.status_code,200)
 
     def test_view_function(self):
         view  = resolve('/reset/')
-        self.assertEquals(view.__class__, auth_views.PasswordResetView)
+        self.assertEquals(view.func.view_class, auth_views.PasswordResetView)
     
     def test_csrf(self):
         self.assertContains(self.response, 'csrfmiddlewaretoken')
 
     def test_contains_form(self):
-        form = self.responese.context.get('form')
+        form = self.response.context.get('form')
         self.assertIsInstance(form,PasswordResetForm)
     def test_form_inputs(self):
         self.assertContains(self.response, '<input', 2)
         self.assertContains(self.response, 'type="email"', 1)
 class SuccessfulPasswordResetTests(TestCase):
     def setUp(self) -> None:
-        email = 'albert.lei@hotmail.com',
-        User.objects.create(username = 'Albert',email=email,password='123abcdef')
+        data = {
+            'email': 'albert@hotmail.com'
+        }
+        User.objects.create(username = 'albert',email='albert@hotmail.com',password='123abcdef')
         url = reverse('password_reset')
-        self.response = self.client.post(url,{'email':email})
+        self.response = self.client.post(url,data)
 
     def test_redirection(self):
         url = reverse('password_reset_done')
@@ -69,14 +71,14 @@ class PasswordResetDone(TestCase):
         self.assertEquals(view.func.view_class, auth_views.PasswordResetDoneView)
 
 class PasswordResetConfirmTests(TestCase):
-    def setUp(self) -> None:
+    def setUp(self):
         user = User.objects.create_user(
             username = 'albert',
-            emial = 'albert@hotmail.com',
+            email = 'albert@hotmail.com',
             password = '12345edf'
         )
-        self.uid = urlsafe_base64_encode(force_bytes(user.pk)).decode()
-        self.token = default_token_generator(user)
+        self.uid = urlsafe_base64_encode(force_bytes(user.pk))
+        self.token = default_token_generator.make_token(user)
 
         url = reverse('password_reset_confirm',kwargs={'uidb64':self.uid,'token':self.token})
         self.response = self.client.get(url,follow=True)
@@ -103,13 +105,9 @@ class PasswordResetConfirmTests(TestCase):
 
 class InvalidPasswordResetConfirmTests(TestCase):
     def setUp(self):
-        user = User.objects.create_user(username='john', email='john@doe.com', password='123abcdef')
-        uid = urlsafe_base64_encode(force_bytes(user.pk)).decode()
+        user = User.objects.create_user(username='albert', email='albert@hotmail.com', password='123abcdef')
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
         token = default_token_generator.make_token(user)
-
-        '''
-        invalidate the token by changing the password
-        '''
         user.set_password('abcdef123')
         user.save()
 
