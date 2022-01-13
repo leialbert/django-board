@@ -7,6 +7,7 @@ from django.utils.decorators import method_decorator
 from django.db.models import Count, fields
 from django.views.generic import UpdateView,ListView
 from django.utils import timezone
+from django.urls import reverse
 
 from boards.models import Board, Post, Topic
 from .forms import NewTopicForm, PostForm
@@ -31,7 +32,7 @@ class TopicListView(ListView):
     model = Board
     context_object_name = 'topics'
     template_name = 'topics.html'
-    paginate_by = 20
+    paginate_by = 4
     def get_context_data(self, **kwargs):
         kwargs['board'] = self.board
         return super().get_context_data(**kwargs)
@@ -100,7 +101,14 @@ def reply_topic(request,pk,topic_pk):
             topic.last_updated = timezone.now()
             topic.save()
 
-            return redirect('topic_posts', pk=pk, topic_pk=topic_pk)
+            topic_url = reverse('topic_posts', kwargs={'pk': pk, 'topic_pk': topic_pk})
+            topic_post_url = '{url}?page={page}#{id}'.format(
+                url=topic_url,
+                id=post.pk,
+                page=topic.get_page_count()
+            )
+
+            return redirect(topic_post_url)
     else:
         form = PostForm()
 
