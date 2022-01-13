@@ -131,4 +131,6 @@ dmypy.json
 # macbook
 .DS_Store
 .vscode
+.env
+db.sqlite3
 
