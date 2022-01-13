@@ -3,7 +3,8 @@ from django.contrib.auth.models import User
 from django.db.models.deletion import CASCADE
 from django.utils.text import Truncator
 from django.utils.html import mark_safe
-import markdown,math
+import math
+from markdown import markdown
 
 
 
@@ -64,4 +65,4 @@ class Post(models.Model):
         return truncated_message.chars(30)
 
     def get_message_as_markdown(self):
-        return mark_safe(markdown.markdown(self.message, safe_mode='escape'))
+        return mark_safe(markdown(self.message, safe_mode='escape'))

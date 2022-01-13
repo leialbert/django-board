@@ -8,6 +8,13 @@
   <link rel="stylesheet" href="{% static 'css/simplemde.min.css' %}">
 {% endblock %}
 
+{% block javascript %}
+<script src="{% static 'js/simplemde.min.js' %}"></script>
+<script>
+  var simplemde = new SimpleMDE();
+</script>
+{% endblock %}
+
 {% block breadcrumb %}
   <li class="breadcrumb-item"><a href="{% url 'home' %}">Boards</a></li>
   <li class="breadcrumb-item"><a href="{% url 'board_topics' topic.board.pk %}">{{ topic.board.name }}</a></li>
@@ -17,7 +24,7 @@
 
 {% block content %}
 
-  <form method="post" class="mb-4">
+  <form method="post" class="mb-4" novalidate>
     {% csrf_token %}
     {% include 'includes/form.html' %}
     <button type="submit" class="btn btn-success">Post a reply</button>
